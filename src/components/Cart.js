@@ -1,11 +1,7 @@
 import React from 'react';
 import { Button, Col, ListGroup, Row } from 'react-bootstrap';
 
-export const Cart = ({ cartItems, removeFromCart, addToCart }) => {
-	const getTotalPrice = () => {
-		return cartItems.reduce((total, item) => total + item.price * item.quantity, 0);
-	};
-
+export const Cart = ({ cartItems, removeFromCart, addToCart, getTotalPrice }) => {
 	return (
 		<Col md={4}>
 			<h2>Cart</h2>
