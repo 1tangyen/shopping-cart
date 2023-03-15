@@ -1,13 +1,7 @@
-import { Col, Row, Form, Button } from 'react-bootstrap';
 import React, { useState } from 'react';
-export const ProductDetails = (props) => {
-	// The productStates array now includes id, name, price, and autoship properties for each product.
+import { Col, Form, ListGroup } from 'react-bootstrap';
 
-	// The applyDiscount function now takes price and autoship as arguments and calculates the discounted price if autoship is true. The discounted price is then returned.
-
-	// The handleAutoshipToggle function has been renamed to toggleAutoship, and it now updates the autoship property of the product with the specified productId.
-
-	// The ProductDetails component now uses the map method to iterate over the productStates array and render each product. The product name, price (after applying the discount), and autoship checkbox are displayed, along with an "Add to cart" button that calls props.addToCart with the selected product and its discounted price.
+export const ProductDetails = ({ setCartItems, addToCart }) => {
 	const [ productStates, setProductStates ] = useState([
 		{ id: 1, name: 'Product 1', price: 10, autoship: false },
 		{ id: 2, name: 'Product 2', price: 20, autoship: false },
@@ -24,7 +18,19 @@ export const ProductDetails = (props) => {
 	const toggleAutoship = (productId) => {
 		setProductStates((prevState) =>
 			prevState.map(
-				(product) => (product.id === productId ? { ...product, autoship: !product.autoship } : product)
+				(product) =>
+					product.id === productId
+						? {
+								...product,
+								autoship: !product.autoship,
+								price: applyDiscount(product.price, !product.autoship)
+							}
+						: product
+			)
+		);
+		setCartItems((prevState) =>
+			prevState.map(
+				(item) => (item.id === productId ? { ...item, price: applyDiscount(item.price, !item.autoship) } : item)
 			)
 		);
 	};
@@ -33,35 +39,41 @@ export const ProductDetails = (props) => {
 		<div className="row">
 			<div className="col-md-8">
 				<h2>Products</h2>
-				<ul className="list-group">
+				<ListGroup>
 					{productStates.map((product) => (
-						<li key={product.id} className="list-group-item">
-							{product.name} - ${applyDiscount(product.price, product.autoship).toFixed(2)}{' '}
-							<label>
-								Autoship:{' '}
-								<input
-									type="checkbox"
-									checked={product.autoship}
-									onChange={() => toggleAutoship(product.id)}
-								/>
-							</label>
-							<button
-								className="btn btn-primary"
-								onClick={() =>
-									props.addToCart({
-										...product,
-										price: applyDiscount(product.price, product.autoship)
-									})}
-							>
-								Add to cart
-							</button>
-						</li>
+						<ListGroup.Item key={product.id}>
+							<div className="d-flex justify-content-between align-items-center">
+								<div>
+									<h5>{product.name}</h5>
+									<p>
+										Price: $
+										{applyDiscount(product.price, product.autoship).toFixed(2)}
+									</p>
+								</div>
+								<div>
+									<Form.Check
+										type="switch"
+										id={`custom-switch-${product.id}`}
+										label="Autoship"
+										checked={product.autoship}
+										onChange={() => toggleAutoship(product.id)}
+									/>
+									<button
+										className="btn btn-primary ml-3"
+										onClick={() =>
+											addToCart({
+												...product,
+												price: applyDiscount(product.price, product.autoship)
+											})}
+									>
+										Add to cart
+									</button>
+								</div>
+							</div>
+						</ListGroup.Item>
 					))}
-				</ul>
+				</ListGroup>
 			</div>
-			{/* <div className="col-md-4">
-				<Cart cartItems={props.cartItems} removeFromCart={props.removeFromCart} />
-			</div> */}
 		</div>
 	);
 };
